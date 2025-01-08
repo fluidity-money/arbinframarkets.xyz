@@ -41,10 +41,12 @@ sequenceDiagram
 | Commitment | The providing of a hash of the form `committer . outcome . seed`. |
 | Calling    | Making a first claim as to what the outcome should be for a market. Done with the `call` function. |
 | Whinging   | Using the whinge function to disagree with the claim function. |
-| Predicting | Using the predict function with a signature to make a Commitment with the amount given staked using Lockup. |
-| Sweeping   | The `sweep` function collects funds from users who predicted incorrectly during the predicting stage. |
-| Declaring  | Calling the `declare` function on a campaign that's had enough predicting from users. |
+| Predicting | Using the `predict` function with a signature to make a Commitment with the amount given staked using Lockup. |
+| Revealing  | Using the `reveal` function to reveal the previous inputs to `predict` after the Predicting stage. |
+| Sweeping   | The `sweep` function collects funds from users who predicted incorrectly during the Predicting stage. |
+| Declaring  | Calling the `declare` function on a campaign that's concluded Predicting. |
 | Closing    | Declaring a campaign as complete if it's been in a state of Calling for enough time. |
+| Escaping   | A bad situation where a campaign has been in Calling for too long, and needs intervention. |
 
 ## Interface
 
@@ -218,7 +220,7 @@ The following contract creates a Infra Market to determine if Trump won the elec
 
 ```solidity
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.6;
+pragma solidity ^0.8.20;
 
 interface IERC20 {
     function transferFrom(address, address, uint256) external;
@@ -232,6 +234,12 @@ interface IDecidable {
      * @param outcome to set as the winner.
      */
     function decide(bytes8 outcome) external;
+
+    /**
+     * @notice Escape an indeterminate/inconclusive campaign, where an associated contract
+     *         needs to do something.
+     */
+    function escape() external;
 }
 
 interface IInfraMarket {
@@ -260,6 +268,8 @@ contract PariMutuelMarket is IDecidable {
 
     bytes8 public outcomeTrumpLost;
     bytes8 public outcomeTrumpWon;
+
+    bool public refundsNeeded;
 
     bytes8 public winner;
 
@@ -324,6 +334,16 @@ contract PariMutuelMarket is IDecidable {
     }
 
     /**
+     * @notice Escape is called when a contract has been in the calling state
+     *         past its deadline.
+     */
+    function escape() external {
+        require(msg.sender == address(INFRA_MARKET), "not infra market");
+        // If this is called, we need to refund everyone.
+        refundsNeeded = true;
+    }
+
+    /**
      * @notice Claim from incorrect bettors who predicted that Trump would win.
      */
     function claimTrumpLost(address _recipient) external returns (uint256) {
@@ -349,6 +369,22 @@ contract PariMutuelMarket is IDecidable {
         ASSET_PREDICTING.transfer(_recipient, shareOfLosers);
         predictionsTrumpWon[msg.sender] = 0;
         return shareOfLosers;
+    }
+
+    function refundTrumpLost(address _recipient) external returns (uint256 refund) {
+        require(refundsNeeded, "refunds not needed");
+        refund = predictionsTrumpLost[msg.sender];
+        ASSET_PREDICTING.transfer(_recipient, refund);
+        predictionsTrumpLost[msg.sender] = 0;
+        return refund;
+    }
+
+    function refundTrumpWon(address _recipient) external returns (uint256 refund) {
+        require(refundsNeeded, "refunds not needed");
+        refund = predictionsTrumpWon[msg.sender];
+        ASSET_PREDICTING.transfer(_recipient, refund);
+        predictionsTrumpWon[msg.sender] = 0;
+        return refund;
     }
 }
 ```
