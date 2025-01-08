@@ -57,7 +57,7 @@ interface IDecidable {
 }
 ```
 
-This is the contract that receives the outcome of the betting.
+This is the contract that receives a callback with the predicting outcome.
 
 With `outcome` being the "outcome" that should be determined to be the winner. This could
 be `bytes8(0)` to indicate an indeterminate state that needs a rerun, a random identifier
@@ -70,11 +70,9 @@ way:
 	bytes8(keccak256(abi.encodePacked("Yes", block.timestamp)))
 
 
-So as a simple story:
+### Example contract
 
-1. Erik wishes to create a market to determine if Trump won the 2024 election. In this
-example, does so by creating a pari-mutuel betting contract where funds are locked until
-conclusion, and distribution is done using weighting:
+The following contract creates a Infra Market to determine if Trump won the election:
 
 ```solidity
 // SPDX-License-Identifier: MIT
@@ -213,6 +211,4 @@ contract PariMutuelMarket is IDecidable {
 }
 ```
 
-2. When he creates the contract and calls the `setuUp` function (separate function for
-this so people don't need to play nonce golf), it calls `register` on the infra market
-contract.
+It registers itself, and is dependent on being indicated to that it should close itself.
