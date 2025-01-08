@@ -390,3 +390,8 @@ contract PariMutuelMarket is IDecidable {
 ```
 
 ## "Calling" an outcome
+
+Calling an outcome in a campaign is as simple as approving a $2 USDC bond, then calling
+`function call(address tradingAddr, bytes8 winner, address incentiveRecipient)`. In this
+call, ensure to nominate a recipient of the bond if the caller is proved correct, and the
+recipient of the incentive amount for calling.
