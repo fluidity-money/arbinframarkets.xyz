@@ -54,8 +54,7 @@ sequenceDiagram
 /**
  * @notice Register this campaign, taking a small stipend for management from the
  *         creator in the form of $3 fUSDC. Factory caller only.
- * @param trading address to configure this
- * @param incentiveSender to send the initial amount, assuming they approved this.
+ * @param trading address to use as the basis for this prediction market outcome.
  * @param desc of the contract to commit as info for users. Should be info for a oracle.
  * @param launchTs to use as the timestamp to begin this infra market.
  *        Could be the conclusion date.
@@ -64,7 +63,6 @@ sequenceDiagram
  */
 function register(
     address trading,
-    address incentiveSender,
     bytes32 desc,
     uint64 launchTs,
     uint64 callDeadlineTs
