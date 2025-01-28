@@ -9,6 +9,8 @@ Arbitrum One.
 
 [Source code](https://github.com/fluidity-money/9lives.so/blob/main/src/contract_infra_market.rs)
 
+[Open source sweeper code](https://github.com/fluidity-money/sweeper.9lives.so/tree/main)
+
 ```mermaid
 sequenceDiagram
     Created ->> Called: call()
