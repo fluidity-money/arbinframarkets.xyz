@@ -1,5 +1,4 @@
 
-
 # ARB Infra Markets
 
 ARB Infra Markets are a simple permissionless commit/reveal natural language oracle,
@@ -10,6 +9,14 @@ Arbitrum One.
 [Source code](https://github.com/fluidity-money/9lives.so/blob/main/src/contract_infra_market.rs)
 
 [Open source sweeper code](https://github.com/fluidity-money/sweeper.9lives.so/tree/main)
+
+## Deployments
+
+### Superposition
+
+|      Name     |                    Address                   |
+|---------------|----------------------------------------------|
+| Proxy         | `0xc4451d8477cd6b92bfa0d3e2662ce0507a8e10b9` |
 
 ```mermaid
 sequenceDiagram
